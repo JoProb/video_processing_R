@@ -33,7 +33,7 @@ jobs:
 
       - name: Install FFmpeg (Windows)
         if: runner.os == 'Windows'
-        run: winget install --id Gyan.FFmpeg -e --accept-package-agreements█
+        run: winget install --id Gyan.FFmpeg -e --accept-package-agreements
 
       - name: Prepare test environment (Linux/macOS)
         if: runner.os != 'Windows'
