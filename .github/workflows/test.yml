@@ -1,0 +1,79 @@
+name: Test R Script on All Platforms
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # Do not cancel other jobs if one fails
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Set up R
+      uses: r-lib/actions/setup-r@v2
+
+    - name: Install FFmpeg (Linux)
+      if: runner.os == 'Linux'
+      run: sudo apt-get update -y && sudo apt-get install -y ffmpeg
+
+    - name: Install FFmpeg (macOS)
+      if: runner.os == 'macOS'
+      run: brew install ffmpeg
+
+    - name: Install FFmpeg (Windows)
+      if: runner.os == 'Windows'
+      run: choco install ffmpeg -y
+
+    - name: Prepare test environment (Linux/macOS)
+      if: runner.os != 'Windows'
+      run: |
+        mkdir in_vids
+        ffmpeg -f lavfi -i testsrc=size=320x240:rate=10 -t 3 in_vids/test_video.mp4
+        # Use sed to replace the hardcoded input path.
+        # The .bak extension for the -i flag is for macOS compatibility.
+        sed -i.bak "s|/run/media/jonas/LaCie/DATA/sample_reference_vids/|in_vids|" process_videos.R
+      shell: bash
+
+    - name: Prepare test environment (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        mkdir in_vids
+        ffmpeg -f lavfi -i testsrc=size=320x240:rate=10 -t 3 in_vids/test_video.mp4
+        # Use PowerShell to replace the hardcoded input path.
+        (Get-Content process_videos.R) -replace '/run/media/jonas/LaCie/DATA/sample_reference_vids/', 'in_vids' | Set-Content process_videos.R
+      shell: pwsh
+
+    - name: Run video processing script
+      run: Rscript process_videos.R
+      shell: bash
+
+    - name: Verify output (Linux/macOS)
+      if: runner.os != 'Windows'
+      run: |
+        echo "Contents of output directory:"
+        ls -R out
+        test -f out/in_vids/test_video_r.mp4
+      shell: bash
+
+    - name: Verify output (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        echo "Contents of output directory:"
+        ls out
+        if (-not (Test-Path out/in_vids/test_video_r.mp4)) {
+          echo "Output file 'out/in_vids/test_video_r.mp4' not found!"
+          exit 1
+        }
+        echo "Output file found. Test successful."
+      shell: pwsh
