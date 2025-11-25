@@ -38,20 +38,15 @@ jobs:
       - name: Prepare test environment (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          mkdir in_vids
-          ffmpeg -f lavfi -i testsrc=size=320x240:rate=10 -t 3 in_vids/test_video.mp4
-          # Use sed to replace the hardcoded input path.
-          # The .bak extension for the -i flag is for macOS compatibility.
-          sed -i.bak "s|/run/media/jonas/LaCie/DATA/sample_reference_vids/|in_vids|" process_videos.R
+          mkdir in_videos
+          ffmpeg -f lavfi -i testsrc=size=320x240:rate=10 -t 3 in_videos/test_video.mp4
         shell: bash
 
       - name: Prepare test environment (Windows)
         if: runner.os == 'Windows'
         run: |
-          mkdir in_vids
+          mkdir in_videos
           ffmpeg -f lavfi -i testsrc=size=320x240:rate=10 -t 3 in_vids/test_video.mp4
-          # Use PowerShell to replace the hardcoded input path.
-          (Get-Content process_videos.R) -replace '/run/media/jonas/LaCie/DATA/sample_reference_vids/', 'in_vids' | Set-Content process_videos.R
         shell: pwsh
 
       - name: Run video processing script
@@ -62,17 +57,17 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           echo "Contents of output directory:"
-          ls -R out
-          test -f out/test_video.mp4
+          ls -R out_videos
+          test -f out_videos/test_video.mp4
         shell: bash
 
       - name: Verify output (Windows)
         if: runner.os == 'Windows'
         run: |
           echo "Contents of output directory:"
-          ls out
-          if (-not (Test-Path out/test_video.mp4)) {
-            echo "Output file 'out/test_video.mp4' not found!"
+          ls out_videos
+          if (-not (Test-Path out_videos/test_video.mp4)) {
+            echo "Output file 'out_videos/test_video.mp4' not found!"
             exit 1
           }
           echo "Output file found. Test successful."
