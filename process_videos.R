@@ -3,8 +3,8 @@
 # ====================================
 # User Configuration
 # ====================================
-input_dir   <- "/run/media/jonas/LaCie/DATA/sample_reference_vids/"
-output_dir  <- "./out"
+input_dir   <- "in_videos"
+output_dir  <- "out_videos"
 # Set resolution to a specific value like "720x404" to resize,
 # or set to NULL or "" to keep the original resolution.
 resolution  <- "720x404"
@@ -143,7 +143,7 @@ process_worker <- function(input_path, input_dir, output_dir, resolution, frame_
   
   base <- file_path_sans_ext(relative_path)
   ext  <- paste0(".", file_ext(relative_path))
-  new_file_name <- paste0(base, "_r", ext)
+  new_file_name <- paste0(base, ext)
   output_path <- file.path(output_dir, new_file_name)
   
   dir.create(dirname(output_path), recursive = TRUE, showWarnings = FALSE)

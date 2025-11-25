@@ -1,2 +1,4 @@
-in_vids/
+in_videos/
+out_videos/
 out/
+video_processing.log

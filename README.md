@@ -26,6 +26,16 @@ Before running the script, you need to have the following software installed:
 
 #### On Windows
 
+##### Windows 10 or later
+
+1. Open a command prompt and run:
+
+   ```powershell
+   winget install ffmpeg
+   ```
+
+##### Alternative Manual Installation for Windows
+
 1. **Download:** Go to [gyan.dev/ffmpeg/builds/](https://www.gyan.dev/ffmpeg/builds/) and download the latest "release-full" build (e.g., `ffmpeg-release-full.7z`).
 2. **Extract:** Extract the downloaded archive. You will get a folder like `ffmpeg-6.x-full_build`.
 3. **Add to PATH:**

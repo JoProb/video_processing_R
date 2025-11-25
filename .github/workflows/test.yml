@@ -33,7 +33,7 @@ jobs:
 
       - name: Install FFmpeg (Windows)
         if: runner.os == 'Windows'
-        run: choco install ffmpeg -y
+        run: winget install --id Gyan.FFmpeg -e --accept-package-agreements█
 
       - name: Prepare test environment (Linux/macOS)
         if: runner.os != 'Windows'
@@ -63,7 +63,7 @@ jobs:
         run: |
           echo "Contents of output directory:"
           ls -R out
-          test -f out/test_video_r.mp4
+          test -f out/test_video.mp4
         shell: bash
 
       - name: Verify output (Windows)
@@ -71,8 +71,8 @@ jobs:
         run: |
           echo "Contents of output directory:"
           ls out
-          if (-not (Test-Path out/test_video_r.mp4)) {
-            echo "Output file 'out/test_video_r.mp4' not found!"
+          if (-not (Test-Path out/test_video.mp4)) {
+            echo "Output file 'out/test_video.mp4' not found!"
             exit 1
           }
           echo "Output file found. Test successful."
