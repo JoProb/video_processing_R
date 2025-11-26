@@ -9,11 +9,11 @@ output_dir  <- "out_videos"
 # or set to NULL or "" to keep the original resolution.
 resolution  <- "720x404"
 frame_rate  <- 24
-overwrite   <- FALSE  # Set to TRUE to overwrite existing files, FALSE to skip
+overwrite   <- TRUE  # Set to TRUE to overwrite existing files, FALSE to skip
 log_file    <- "video_processing.log"
 use_watermark <- TRUE  # Set to TRUE to apply watermark, FALSE to skip
 watermark_png <- "logo_WCF.png"
-watermark_scale <- 0.1  # scale to 20% of original
+watermark_scale <- 0.05   # scale to 20% of original
 ## Watermark position options:
 # # Center
 # watermark_pos = "(W-w)/2:(H-h)/2"
