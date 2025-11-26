@@ -28,7 +28,7 @@ Before running the script, you need to have the following software installed:
 
 ##### Windows 10 or later
 
-1. Open a command prompt and run:
+1. Open a command prompt (Press `Win + R`, type `cmd`, and press Enter).
 
    ```powershell
    winget install ffmpeg
@@ -111,4 +111,3 @@ This log file is useful for troubleshooting any issues that may occur.
 
 - **`in_vids/`**: A sample directory for input videos. You should place the videos you want to process here or change the `input_dir` variable to point to your videos' location.
 - **`out/`**: The default output directory where the processed videos will be saved. The script will replicate the directory structure from the input directory.
-
