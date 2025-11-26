@@ -72,11 +72,10 @@ process_video <- function(input_path, output_path, resolution, frame_rate, overw
 
   # For system2 on non-Windows, args with special characters need shell quoting.
   quote_arg <- function(arg) {
-    # No need to quote on Windows as system2 handles it.
     if (.Platform$OS.type != "windows") {
       return(shQuote(arg, type = "sh"))
     }
-    return(arg)
+    return(shQuote(arg, type = "cmd"))
   }
 
   # --- Argument building ---
