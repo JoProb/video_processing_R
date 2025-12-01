@@ -11,7 +11,7 @@ resolution  <- "720x404"
 frame_rate  <- 24
 overwrite   <- TRUE  # Set to TRUE to overwrite existing files, FALSE to skip
 log_file    <- "video_processing.log"
-use_watermark <- FALSE  # Set to TRUE to apply watermark, FALSE to skip
+use_watermark <- TRUE  # Set to TRUE to apply watermark, FALSE to skip
 watermark_png <- "logo_WCF.png"
 watermark_scale <- 0.04  # Scale factor for watermark size 
 ## Watermark position options:
@@ -60,6 +60,20 @@ check_ffmpeg <- function() {
   res <- suppressWarnings(system2("ffmpeg", "-version", stdout = TRUE, stderr = TRUE))
   if (length(res) == 0) {
     stop("ERROR: ffmpeg not found. Install it or add it to PATH.")
+  }
+}
+
+check_png <- function() {
+  if (use_watermark) {
+    if (!file.exists(watermark_png)) {
+      stop(paste("ERROR: Watermark PNG file not found at", watermark_png))
+    }
+  }
+}
+
+check_input_dir <- function() {
+  if (!dir.exists(input_dir)) {
+    stop(paste("ERROR: Input directory not found at", input_dir))
   }
 }
 
@@ -122,6 +136,10 @@ process_video <- function(input_path, output_path, resolution, frame_rate, overw
   
   # --- Execution ---
   err_file <- tempfile(fileext = ".log")
+
+  # Log the command for debugging
+  log_message(paste("Executing: ffmpeg", paste(args, collapse = " ")))
+
   status <- system2("ffmpeg", args = args, stdout = FALSE, stderr = err_file)
 
   if (status != 0) {
@@ -168,6 +186,8 @@ process_worker <- function(input_path, input_dir, output_dir, resolution, frame_
 # -----------------------
 process_directory <- function() {
   check_ffmpeg()
+  check_png()
+  check_input_dir()
   
   all_files <- list.files(input_dir, recursive = TRUE, full.names = TRUE)
   video_ext <- c(".mp4", ".avi", ".mov", ".mkv")
