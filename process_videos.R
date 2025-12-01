@@ -11,7 +11,7 @@ resolution  <- "720x404"
 frame_rate  <- 24
 overwrite   <- TRUE  # Set to TRUE to overwrite existing files, FALSE to skip
 log_file    <- "video_processing.log"
-use_watermark <- TRUE  # Set to TRUE to apply watermark, FALSE to skip
+use_watermark <- FALSE  # Set to TRUE to apply watermark, FALSE to skip
 watermark_png <- "logo_WCF.png"
 watermark_scale <- 0.04  # Scale factor for watermark size 
 ## Watermark position options:
@@ -100,6 +100,9 @@ process_video <- function(input_path, output_path, resolution, frame_rate, overw
       filter_chains <- c(filter_chains,
                         paste0("[1:v]scale=iw*", watermark_scale, ":ih*", watermark_scale, ":flags=lanczos[wm]"),
                         paste0(video_stream, "[wm]overlay=", watermark_pos))
+  } else {
+      filter_chains <- c(filter_chains,
+                        paste0(video_stream, "null"));
   }
 
   # The filter_complex argument is a single string that often needs quoting
