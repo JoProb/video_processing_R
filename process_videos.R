@@ -3,13 +3,13 @@
 # ====================================
 # User Configuration
 # ====================================
-input_dir   <- "in_videos"
-output_dir  <- "out_videos"
+input_dir   <- "in_videos" # change this to your input directory
+output_dir  <- "out_videos" # change to desired output directory, it will be created if it doesn't exist
 # Set resolution to a specific value like "720x404" to resize,
 # or set to NULL or "" to keep the original resolution.
 resolution  <- "720x404"
 frame_rate  <- 24
-overwrite   <- TRUE  # Set to TRUE to overwrite existing files, FALSE to skip
+overwrite   <- FALSE  # Set to TRUE to overwrite existing files, FALSE to skip
 log_file    <- "video_processing.log"
 use_watermark <- TRUE  # Set to TRUE to apply watermark, FALSE to skip
 watermark_png <- "logo_WCF.png"
@@ -138,7 +138,7 @@ process_video <- function(input_path, output_path, resolution, frame_rate, overw
   err_file <- tempfile(fileext = ".log")
 
   # Log the command for debugging
-  log_message(paste("Executing: ffmpeg", paste(args, collapse = " ")))
+  # log_message(paste("Executing: ffmpeg", paste(args, collapse = " ")))
 
   status <- system2("ffmpeg", args = args, stdout = FALSE, stderr = err_file)
 
