@@ -1,16 +1,21 @@
 #!/usr/bin/env Rscript
 
+
 # ====================================
 # User Configuration
 # ====================================
 input_dir   <- "in_videos" # change this to your input directory
 output_dir  <- "out_videos" # change to desired output directory, it will be created if it doesn't exist
+logs_dir    <- "logs"      # Directory to store logs
 # Set resolution to a specific value like "720x404" to resize,
 # or set to NULL or "" to keep the original resolution.
 resolution  <- "720x404"
 frame_rate  <- 24
 overwrite   <- FALSE  # Set to TRUE to overwrite existing files, FALSE to skip
-log_file    <- "video_processing.log"
+now <- format(Sys.time(), "%Y%m%d_%H%M%S")
+log_file_name    <- paste0("/process_videos_log_", now, ".log")
+log_file <- file.path(logs_dir, log_file_name)
+dir.create(dirname(log_file), recursive = TRUE, showWarnings = FALSE)
 use_watermark <- TRUE  # Set to TRUE to apply watermark, FALSE to skip
 watermark_png <- "logo_WCF.png"
 watermark_scale <- 0.04  # Scale factor for watermark size 
@@ -251,16 +256,6 @@ process_directory <- function() {
   log_message(paste("\n=== Processing complete ==="))
   log_message(paste("Successful:", successes))
   log_message(paste("Failed:", failures))
-  
-  if (failures > 0) {
-    log_message("\nFailed files:")
-    for (r in results) {
-      if (!r$success) {
-        log_message(paste("  -", r$file, ":", r$error))
-      }
-    }
-  }
-  
   cat("\nCheck", log_file, "for detailed logs.\n")
 }
 

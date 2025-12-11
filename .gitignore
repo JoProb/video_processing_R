@@ -2,4 +2,6 @@ in_videos/
 out_videos/
 out/
 tests/
-video_processing.log
+*.log
+logs/
+
