@@ -136,6 +136,8 @@ process_video <- function(input_path, output_path, resolution, frame_rate, overw
     "-c:v", "libx264",
     "-crf", "20",
     "-c:a", "aac",
+    "-map_metadata", "0",
+    "-movflags", "use_metadata_tags",
     quote_arg(output_path)
   )
   
@@ -172,17 +174,25 @@ process_worker <- function(input_path, input_dir, output_dir, resolution, frame_
   output_path <- file.path(output_dir, new_file_name)
   
   dir.create(dirname(output_path), recursive = TRUE, showWarnings = FALSE)
-  
+
+  # Track whether output already existed before processing
+  file_existed <- file.exists(output_path)
+
+  # If overwrite is FALSE and output already exists, skip without calling ffmpeg
+  if (file_existed && !isTRUE(overwrite) && tolower(as.character(overwrite)) != "y") {
+    return(list(success = TRUE, file = basename(input_path), skipped = TRUE, overwritten = FALSE))
+  }
+
   tryCatch({
     if (!use_watermark) {
       watermark_png = NULL
     }
     process_video(input_path, output_path, resolution, frame_rate, overwrite, watermark_png = watermark_png, watermark_pos = watermark_pos, watermark_scale = watermark_scale, use_watermark = use_watermark)
-    return(list(success = TRUE, file = basename(input_path)))
+    return(list(success = TRUE, file = basename(input_path), skipped = FALSE, overwritten = file_existed))
   }, error = function(e) {
     msg <- paste("✘ Error:", basename(input_path), ":", e$message)
     write(msg, file = log_file, append = TRUE)
-    return(list(success = FALSE, file = basename(input_path), error = e$message))
+    return(list(success = FALSE, file = basename(input_path), error = e$message, skipped = FALSE, overwritten = FALSE))
   })
 }
 
@@ -241,7 +251,7 @@ process_directory <- function() {
     bar <- paste0(rep("=", filled), collapse = "")
     empty <- paste0(rep(" ", bar_width - filled), collapse = "")
     
-    status <- if (res$success) "✓" else "✗"
+    status <- if (!res$success) "✗" else if (isTRUE(res$skipped)) "—" else "✓"
     cat(sprintf("\r[%s%s] %d%% (%d/%d) ETA: %s %s %s  ", 
                 bar, empty, pct, i, total, eta, status, basename(v)))
     flush.console()
@@ -250,11 +260,28 @@ process_directory <- function() {
   cat("\n\n")
   
   # Summary
-  successes <- sum(sapply(results, function(r) r$success))
-  failures <- total - successes
+  successes  <- sum(sapply(results, function(r) r$success && !isTRUE(r$skipped) && !isTRUE(r$overwritten)))
+  skipped    <- sum(sapply(results, function(r) isTRUE(r$skipped)))
+  overwritten <- sum(sapply(results, function(r) isTRUE(r$overwritten)))
+  failures   <- sum(sapply(results, function(r) !r$success))
   
   log_message(paste("\n=== Processing complete ==="))
-  log_message(paste("Successful:", successes))
+  # failed video filenames
+  # Only include filenames for failed videos, omit NULLs
+  failed_files <- unlist(lapply(results, function(r) if (!is.null(r$error)) r$file else NULL))
+  if (length(failed_files) > 0) {
+    # add input directory to failed filenames for better context
+    failed_files <- file.path(input_dir, failed_files)
+    failed_files_str <- paste(failed_files, collapse = "\n")
+    log_message(paste("Failed videos:\n", failed_files_str))
+  } else {
+    log_message("No failed videos.")
+  }
+  log_message(paste("\n=== Summary ==="))
+  log_message(paste("Total videos:", total))
+  log_message(paste("New successfully processed:", successes))
+  log_message(paste("Overwritten:", overwritten))
+  log_message(paste("Skipped (already existed):", skipped))
   log_message(paste("Failed:", failures))
   cat("\nCheck", log_file, "for detailed logs.\n")
 }
