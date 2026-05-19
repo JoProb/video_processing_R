@@ -144,7 +144,7 @@ process_video <- function(input_path, output_path, resolution, frame_rate, overw
     "-profile:v", "high",
     "-level", "4.1",
     "-map_metadata", "0",
-    "-movflags", "use_metadata_tags",
+    "-movflags", "use_metadata_tags+faststart",
     quote_arg(output_path)
   )
 
